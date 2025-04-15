@@ -1,0 +1,181 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 50;
+  }
+  
+  .modal-content {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    width: 400px;
+    max-width: 90%;
+  }
+  
+  .modal-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+  
+  .modal-section {
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+  
+  .modal-actions {
+    text-align: right;
+  }
+  
+  .close-btn {
+    background: #6366f1;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .modal-content {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    width: 420px;
+    max-width: 90%;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  
+  .modal-title {
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .modal-section {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+  }
+  
+  .modal-section label {
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .modal-section input,
+  .modal-section textarea,
+  .modal-section select {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  
+  .modal-section input:focus,
+  .modal-section textarea:focus,
+  .modal-section select:focus {
+    border-color: #6366f1;
+  }
+  
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 1rem;
+  }
+  
+  .modal-actions button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .modal-actions button:first-child {
+    background-color: #6366f1;
+    color: white;
+  }
+  
+  .modal-actions button:first-child:hover {
+    background-color: #4f46e5;
+  }
+  
+  .modal-actions button:last-child {
+    background-color: #f3f4f6;
+    color: #333;
+  }
+  
+  .modal-actions button:last-child:hover {
+    background-color: #e5e7eb;
+  }
+
+  .add-card-form {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+  
+  .add-card-form input[type='text'] {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    outline: none;
+  }
+  
+  .add-card-form input:focus {
+    border-color: #6366f1;
+  }
+  
+  .add-card-form .btn-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .add-card-form button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .add-card-form button.add {
+    background-color: #6366f1;
+    color: white;
+  }
+  
+  .add-card-form button.add:hover {
+    background-color: #4f46e5;
+  }
+  
+  .add-card-form button.cancel {
+    background-color: #f3f4f6;
+    color: #333;
+  }
+  
+  .add-card-form button.cancel:hover {
+    background-color: #e5e7eb;
+  }
+  
+  
