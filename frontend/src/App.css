@@ -1,213 +1,192 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
+/* index.css 또는 app.css에 적용하세요 */
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-/* App.css */
+/* ✅ 전체 배경 */
 body {
+  background-color: #f4f6f9;
   margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.board-title {
-  text-align: center;
-  font-size: 2rem;
-  margin-top: 20px;
-}
-
+/* ✅ 보드 전체 영역 */
 .board-container {
+  padding: 2rem;
+  min-height: 100vh;
   display: flex;
-  gap: 20px;
-  overflow-x: auto;
-  padding: 20px;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.list-column {
-  background-color: #ffffff;
-  border-radius: 10px;
-  padding: 15px;
-  width: 250px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  flex-shrink: 0;
+.header-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }
 
 .input {
-  width: 100%;
-  padding: 6px;
-  margin-top: 6px;
-  margin-bottom: 6px;
+  padding: 8px 12px;
   border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
+  border-radius: 6px;
+  font-size: 0.9rem;
 }
 
+/* ✅ 리스트 정렬 */
+.list-row {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+/* ✅ 리스트 스타일 */
+.list-column {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  min-width: 280px;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.list-column .list-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #ccc;
+  padding-bottom: 0.25rem;
+}
+
+.list-title-input {
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-bottom: 2px solid #ccc;
+  margin-bottom: 1rem;
+  outline: none;
+  padding: 4px 8px;
+  width: 100%;
+}
+
+/* ✅ 카드 스타일 */
 .card {
-  background-color: #fdfdfd;
-  border: 1px solid #ddd;
-  padding: 10px;
-  margin-bottom: 8px;
-  border-radius: 6px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.2s ease, transform 0.1s ease;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  margin-bottom: 8px;
 }
 
 .card:hover {
-  background-color: #eee;
+  background-color: #f9fafb;
+  transform: translateY(-2px);
 }
 
 .card-title {
   font-weight: bold;
-  margin-bottom: 5px;
+  font-size: 1rem;
+  margin-bottom: 6px;
 }
 
+.card-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+.card-stack::-webkit-scrollbar {
+  width: 6px;
+}
+.card-stack::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+/* ✅ 카드 상태별 색상 라벨 */
 .badge {
   display: inline-block;
-  font-size: 0.8rem;
-  padding: 2px 6px;
-  border-radius: 4px;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: bold;
+  margin-top: 4px;
 }
 
-.badge.yellow {
+.badge.todo {
   background-color: #fff3cd;
   color: #856404;
 }
 
-.badge.red {
+.badge.doing {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.badge.done {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.badge.blocked {
   background-color: #f8d7da;
   color: #721c24;
 }
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+.badge.postponed {
+  background-color: #ffeeba;
+  color: #8a6d3b;
 }
 
-.modal {
-  background-color: #fff;
-  padding: 20px;
-  width: 400px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+.badge.expired {
+  background-color: #ffe0e0;
+  color: #a80000;
 }
 
-.modal-actions {
-  margin-top: 20px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+.badge.cancelled {
+  background-color: #e2e3e5;
+  color: #6c757d;
 }
 
-/* App.css */
-.list-column {
-  background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  padding: 1rem;
-  width: 18rem;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.list-title {
-  font-size: 1.125rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
-
-.card-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.add-card-form {
-  margin-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.input {
-  padding: 0.5rem;
-  font-size: 0.875rem;
-  border: 1px solid #ccc;
-  border-radius: 0.375rem;
-}
-
-.button {
-  padding: 0.5rem;
-  font-size: 0.875rem;
-  border-radius: 0.375rem;
-  cursor: pointer;
-}
-
-.button.add {
+/* ✅ 버튼 강조 */
+.add-list-btn, .add-card-btn {
   background-color: #6366f1;
   color: white;
+  padding: 8px 16px;
   border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
 }
 
-.button.add:hover {
+.add-list-btn:hover, .add-card-btn:hover {
   background-color: #4f46e5;
 }
 
-.button.cancel {
-  background-color: #f3f4f6;
-  border: 1px solid #ccc;
+/* ✅ 모달 배경 및 레이아웃 */
+.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
-.button.cancel:hover {
-  background-color: #e5e7eb;
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
-.button.add-card-trigger {
-  margin-top: 1rem;
-  background-color: #f9fafb;
-  border: 1px dashed #ccc;
-  color: #333;
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
-
-.button.add-card-trigger:hover {
-  background-color: #f3f4f6;
-}
-

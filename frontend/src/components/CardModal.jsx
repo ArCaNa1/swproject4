@@ -67,9 +67,13 @@ export default function CardModal({ card, onClose, onSave }) {
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
-            <option value="TODO">📝 TODO</option>
-            <option value="DOING">🚧 DOING</option>
-            <option value="DONE">✅ DONE</option>
+            <option value="TODO">📝 TODO (해야 할 일)</option>
+            <option value="DOING">🚧 DOING (진행 중)</option>
+            <option value="DONE">✅ DONE (완료됨)</option>
+            <option value="BLOCKED">⛔ BLOCKED (차단됨)</option>
+            <option value="POSTPONED">🕓 POSTPONED (연기됨)</option>
+            <option value="EXPIRED">⏰ EXPIRED (기한 초과)</option>
+            <option value="CANCELLED">❌ CANCELLED (취소됨)</option>
           </select>
         </label>
 
