@@ -4,6 +4,7 @@
 body {
   background-color: #f4f6f9;
   margin: 0;
+  display: inline;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -189,4 +190,47 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+/* App.css 또는 index.css에 추가 */
+.login-container {
+  position: relative;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.login-form input {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.login-form button {
+  width: 100%;
+  padding: 0.6rem;
+  background-color: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.error-msg {
+  margin-top: 1rem;
+  color: red;
+  font-size: 0.9rem;
+}
+
+.fullscreen-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
