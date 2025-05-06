@@ -1,6 +1,6 @@
-package com.example.backend.repository;
+package com.mytaskboard.backend.repository;
 
-import com.example.backend.entity.User;
+import com.mytaskboard.backend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 

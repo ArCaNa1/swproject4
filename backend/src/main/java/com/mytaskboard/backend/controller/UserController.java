@@ -1,7 +1,7 @@
-package com.example.backend.controller;
+package com.mytaskboard.backend.controller;
 
-import com.example.backend.entity.User;
-import com.example.backend.repository.UserRepository;
+import com.mytaskboard.backend.entity.User;
+import com.mytaskboard.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;

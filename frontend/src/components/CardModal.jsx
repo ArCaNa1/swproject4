@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import "./CardModal.css";
 
-export default function CardModal({ card, onClose, onSave }) {
+export default function CardModal({ card, onClose, onSave, onDelete }) {
   const [title, setTitle] = useState(card.title);
-  const [dueDate, setDueDate] = useState(card.dueDate);
+  const [dueDate, setDueDate] = useState(card.dueDate || "");
   const [description, setDescription] = useState(card.description || "");
   const [status, setStatus] = useState(card.status || "TODO");
 
@@ -15,19 +15,22 @@ export default function CardModal({ card, onClose, onSave }) {
       description,
       status,
     };
-    if (typeof onSave === "function") {
-      onSave(updatedCard); // 부모로 전달
-    } else {
-      alert("💾 저장 기능은 다음 단계에서 구현 예정입니다!");
-    }
+    onSave?.(updatedCard);
     onClose();
+  };
+
+  const handleDelete = () => {
+    if (window.confirm("정말 삭제하시겠습니까?")) {
+      onDelete?.(card.id);
+      onClose();
+    }
   };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <h2 className="modal-title">
-          📝 카드: <span className="text-indigo-700 font-semibold">{card.title}</span>
+          📝 카드: <span>{card.title}</span>
         </h2>
 
         <label className="modal-section">
@@ -67,19 +70,22 @@ export default function CardModal({ card, onClose, onSave }) {
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
-            <option value="TODO">📝 TODO (해야 할 일)</option>
-            <option value="DOING">🚧 DOING (진행 중)</option>
-            <option value="DONE">✅ DONE (완료됨)</option>
-            <option value="BLOCKED">⛔ BLOCKED (차단됨)</option>
-            <option value="POSTPONED">🕓 POSTPONED (연기됨)</option>
-            <option value="EXPIRED">⏰ EXPIRED (기한 초과)</option>
-            <option value="CANCELLED">❌ CANCELLED (취소됨)</option>
+            <option value="TODO">📝 TODO</option>
+            <option value="DOING">🚧 DOING</option>
+            <option value="DONE">✅ DONE</option>
+            <option value="BLOCKED">⛔ BLOCKED</option>
+            <option value="POSTPONED">🕓 POSTPONED</option>
+            <option value="EXPIRED">⏰ EXPIRED</option>
+            <option value="CANCELLED">❌ CANCELLED</option>
           </select>
         </label>
 
         <div className="modal-actions mt-4">
           <button onClick={handleSave} className="bg-indigo-600 text-white px-4 py-2 rounded">
             저장
+          </button>
+          <button onClick={handleDelete} className="ml-2 bg-red-500 text-white px-4 py-2 rounded">
+            삭제
           </button>
           <button onClick={onClose} className="ml-2 bg-gray-300 px-4 py-2 rounded">
             닫기

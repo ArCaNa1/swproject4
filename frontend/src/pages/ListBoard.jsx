@@ -1,23 +1,97 @@
-import React, { useState } from "react";
+// ListBoard.jsx
+import React, { useState, useEffect } from "react";
 import ListColumn from "../components/ListColumn";
 import CardModal from "../components/CardModal";
-import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
-export default function ListBoard() {
+export default function ListBoard({ user }) {
   const [lists, setLists] = useState([]);
   const [selectedCard, setSelectedCard] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [isDragging, setIsDragging] = useState(false);
 
-  const handleAddList = () => {
-    const newList = {
-      id: uuidv4(),
-      title: "새 리스트",
-      cards: [],
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const encodedEmail = encodeURIComponent(user.email);
+        const response = await axios.get(`http://localhost:8080/api/tasks/${encodedEmail}`);
+        const tasks = response.data;
+        const grouped = ["TODO", "DOING", "DONE"].map((status) => ({
+          id: status,
+          title: getStatusTitle(status),
+          cards: tasks.filter((t) => t.status === status),
+        }));
+        setLists(grouped);
+      } catch (error) {
+        console.error("❌ 작업 가져오기 실패", error);
+      }
     };
-    setLists((prev) => [...prev, newList]);
+    if (user?.email) fetchTasks();
+  }, [user]);
+
+  const getStatusTitle = (status) => {
+    switch (status) {
+      case "TODO": return "📝 TODO";
+      case "DOING": return "🚧 DOING";
+      case "DONE": return "✅ DONE";
+      default: return status;
+    }
+  };
+
+  const createTask = async (email, title, status) => {
+    try {
+      const response = await axios.post("http://localhost:8080/api/tasks", {
+        email,
+        title,
+        status
+      });
+      const task = response.data;
+      setLists((prev) =>
+        prev.map((list) =>
+          list.id === status ? { ...list, cards: [...list.cards, task] } : list
+        )
+      );
+    } catch (error) {
+      console.error("❌ 생성 오류", error);
+    }
+  };
+
+  const updateTask = async (updatedCard) => {
+    try {
+      await axios.put(`http://localhost:8080/api/tasks/${updatedCard.id}`, updatedCard);
+      setLists((prevLists) =>
+        prevLists.map((list) => {
+          const updatedCards = list.cards.map((card) =>
+            card.id === updatedCard.id ? updatedCard : card
+          );
+          return { ...list, cards: updatedCards };
+        })
+      );
+    } catch (error) {
+      console.error("❌ 수정 오류", error);
+    }
+  };
+
+  const deleteTask = async (cardId) => {
+    try {
+      await axios.delete(`http://localhost:8080/api/tasks/${cardId}`);
+      setLists((prevLists) =>
+        prevLists.map((list) => ({
+          ...list,
+          cards: list.cards.filter((card) => card.id !== cardId),
+        }))
+      );
+    } catch (error) {
+      console.error("❌ 삭제 오류", error);
+    }
+  };
+
+  const handleAddCard = (listId, card) => {
+    if (user?.email && card?.title) {
+      createTask(user.email, card.title, listId);
+    }
   };
 
   const handleChangeListTitle = (listId, newTitle) => {
@@ -28,70 +102,30 @@ export default function ListBoard() {
     );
   };
 
-  const handleAddCard = (listId, card) => {
-    setLists((prev) =>
-      prev.map((list) =>
-        list.id === listId
-          ? { ...list, cards: [...list.cards, { ...card, id: uuidv4() }] }
-          : list
-      )
-    );
-  };
-
   const openModal = (card) => {
-    if (!isDragging) {
-      setSelectedCard(card);
-    }
+    if (!isDragging) setSelectedCard(card);
   };
-
-  const closeModal = () => {
-    setSelectedCard(null);
-  };
-
-  const handleSaveCard = (updatedCard) => {
-    setLists((prevLists) =>
-      prevLists.map((list) => {
-        const hasCard = list.cards.some((card) => card.id === updatedCard.id);
-        if (!hasCard) return list;
-
-        const updatedCards = list.cards.map((card) =>
-          card.id === updatedCard.id ? updatedCard : card
-        );
-
-        return { ...list, cards: updatedCards };
-      })
-    );
-  };
+  const closeModal = () => setSelectedCard(null);
+  const handleSaveCard = (updatedCard) => updateTask(updatedCard);
+  const handleDeleteCard = (cardId) => deleteTask(cardId);
 
   const handleDragStart = () => setIsDragging(true);
   const handleDragEndLocal = () => setTimeout(() => setIsDragging(false), 0);
 
   const handleDragEnd = (result) => {
     handleDragEndLocal();
-    const { source, destination, type } = result;
+    const { source, destination } = result;
     if (!destination) return;
+    if (source.droppableId === destination.droppableId && source.index === destination.index) return;
 
-    if (type === "COLUMN") {
-      const reordered = Array.from(lists);
-      const [movedList] = reordered.splice(source.index, 1);
-      reordered.splice(destination.index, 0, movedList);
-      setLists(reordered);
-    } else {
-      setLists((prevLists) => {
-        const sourceListIndex = prevLists.findIndex((l) => l.id === source.droppableId);
-        const destListIndex = prevLists.findIndex((l) => l.id === destination.droppableId);
-
-        const newLists = JSON.parse(JSON.stringify(prevLists));
-
-        const sourceCards = newLists[sourceListIndex].cards;
-        const destCards = newLists[destListIndex].cards;
-
-        const [movedCard] = sourceCards.splice(source.index, 1);
-        destCards.splice(destination.index, 0, movedCard);
-
-        return newLists;
-      });
-    }
+    const newLists = JSON.parse(JSON.stringify(lists));
+    const sourceList = newLists.find((l) => l.id === source.droppableId);
+    const destList = newLists.find((l) => l.id === destination.droppableId);
+    const [movedCard] = sourceList.cards.splice(source.index, 1);
+    movedCard.status = destList.id;
+    destList.cards.splice(destination.index, 0, movedCard);
+    setLists(newLists);
+    updateTask(movedCard);
   };
 
   return (
@@ -104,7 +138,6 @@ export default function ListBoard() {
           value={searchKeyword}
           onChange={(e) => setSearchKeyword(e.target.value)}
         />
-
         <select
           className="input"
           value={statusFilter}
@@ -115,8 +148,16 @@ export default function ListBoard() {
           <option value="DOING">🚧 DOING</option>
           <option value="DONE">✅ DONE</option>
         </select>
-
-        <button className="add-list-btn" onClick={handleAddList}>
+        <button
+          className="add-list-btn"
+          onClick={() => {
+            const newId = `CUSTOM_${Date.now()}`;
+            setLists((prev) => [
+              ...prev,
+              { id: newId, title: "🆕 새 리스트", cards: [] },
+            ]);
+          }}
+        >
           + 리스트 추가
         </button>
       </div>
@@ -137,9 +178,9 @@ export default function ListBoard() {
                         list={list}
                         onAddCard={handleAddCard}
                         onCardClick={openModal}
+                        onChangeListTitle={handleChangeListTitle}
                         searchKeyword={searchKeyword}
                         statusFilter={statusFilter}
-                        onChangeListTitle={handleChangeListTitle}
                       />
                     </div>
                   )}
@@ -156,6 +197,7 @@ export default function ListBoard() {
           card={selectedCard}
           onClose={closeModal}
           onSave={handleSaveCard}
+          onDelete={handleDeleteCard}
         />
       )}
     </div>
