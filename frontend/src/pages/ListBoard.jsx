@@ -1,8 +1,8 @@
-// ListBoard.jsx
+// ✅ ListBoard.jsx (axios 경로 및 baseURL 정리 포함 전체 수정본)
 import React, { useState, useEffect } from "react";
 import ListColumn from "../components/ListColumn";
 import CardModal from "../components/CardModal";
-import axios from "axios";
+import axios from "../utils/axiosInstance";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 export default function ListBoard({ user }) {
@@ -13,56 +13,41 @@ export default function ListBoard({ user }) {
   const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
-    const fetchTasks = async () => {
+    const fetchListsAndTasks = async () => {
       try {
         const encodedEmail = encodeURIComponent(user.email);
-        const response = await axios.get(`http://localhost:8080/api/tasks/${encodedEmail}`);
-        const tasks = response.data;
-        const grouped = ["TODO", "DOING", "DONE"].map((status) => ({
-          id: status,
-          title: getStatusTitle(status),
-          cards: tasks.filter((t) => t.status === status),
-        }));
-        setLists(grouped);
+        const res = await axios.get(`/api/lists/${encodedEmail}`);
+        setLists(res.data);
       } catch (error) {
-        console.error("❌ 작업 가져오기 실패", error);
+        console.error("❌ 리스트 및 카드 로딩 실패", error);
       }
     };
-    if (user?.email) fetchTasks();
+    if (user?.email) fetchListsAndTasks();
   }, [user]);
 
-  const getStatusTitle = (status) => {
-    switch (status) {
-      case "TODO": return "📝 TODO";
-      case "DOING": return "🚧 DOING";
-      case "DONE": return "✅ DONE";
-      default: return status;
-    }
-  };
-
-  const createTask = async (email, title, status) => {
+  const createTask = async (listId, title) => {
     try {
-      const response = await axios.post("http://localhost:8080/api/tasks", {
-        email,
+      const response = await axios.post("/api/tasks", {
+        listId,
         title,
-        status
+        status: "TODO",
       });
-      const task = response.data;
+      const newCard = response.data;
       setLists((prev) =>
         prev.map((list) =>
-          list.id === status ? { ...list, cards: [...list.cards, task] } : list
+          list.id === listId ? { ...list, cards: [...list.cards, newCard] } : list
         )
       );
     } catch (error) {
-      console.error("❌ 생성 오류", error);
+      console.error("❌ 카드 생성 실패", error);
     }
   };
 
   const updateTask = async (updatedCard) => {
     try {
-      await axios.put(`http://localhost:8080/api/tasks/${updatedCard.id}`, updatedCard);
-      setLists((prevLists) =>
-        prevLists.map((list) => {
+      await axios.put(`/api/tasks/${updatedCard.id}`, updatedCard);
+      setLists((prev) =>
+        prev.map((list) => {
           const updatedCards = list.cards.map((card) =>
             card.id === updatedCard.id ? updatedCard : card
           );
@@ -70,28 +55,38 @@ export default function ListBoard({ user }) {
         })
       );
     } catch (error) {
-      console.error("❌ 수정 오류", error);
+      console.error("❌ 카드 수정 실패", error);
     }
   };
 
   const deleteTask = async (cardId) => {
     try {
-      await axios.delete(`http://localhost:8080/api/tasks/${cardId}`);
-      setLists((prevLists) =>
-        prevLists.map((list) => ({
+      await axios.delete(`/api/tasks/${cardId}`);
+      setLists((prev) =>
+        prev.map((list) => ({
           ...list,
           cards: list.cards.filter((card) => card.id !== cardId),
         }))
       );
     } catch (error) {
-      console.error("❌ 삭제 오류", error);
+      console.error("❌ 카드 삭제 실패", error);
+    }
+  };
+
+  const createList = async () => {
+    try {
+      const response = await axios.post("/api/lists", {
+        email: user.email,
+        title: "🆕 새 리스트",
+      });
+      setLists((prev) => [...prev, { ...response.data, cards: [] }]);
+    } catch (error) {
+      console.error("❌ 리스트 생성 실패", error);
     }
   };
 
   const handleAddCard = (listId, card) => {
-    if (user?.email && card?.title) {
-      createTask(user.email, card.title, listId);
-    }
+    if (card?.title) createTask(listId, card.title);
   };
 
   const handleChangeListTitle = (listId, newTitle) => {
@@ -100,13 +95,22 @@ export default function ListBoard({ user }) {
         list.id === listId ? { ...list, title: newTitle } : list
       )
     );
+    axios.put(`/api/lists/${listId}`, { title: newTitle }).catch((err) => {
+      console.error("❌ 리스트 제목 수정 실패", err);
+    });
   };
 
   const openModal = (card) => {
     if (!isDragging) setSelectedCard(card);
   };
   const closeModal = () => setSelectedCard(null);
-  const handleSaveCard = (updatedCard) => updateTask(updatedCard);
+
+  const handleSaveCard = (card) => {
+    if (card.id && card.listId) updateTask(card);
+    else createTask(card.listId, card.title);
+    closeModal();
+  };
+
   const handleDeleteCard = (cardId) => deleteTask(cardId);
 
   const handleDragStart = () => setIsDragging(true);
@@ -119,10 +123,11 @@ export default function ListBoard({ user }) {
     if (source.droppableId === destination.droppableId && source.index === destination.index) return;
 
     const newLists = JSON.parse(JSON.stringify(lists));
-    const sourceList = newLists.find((l) => l.id === source.droppableId);
-    const destList = newLists.find((l) => l.id === destination.droppableId);
+    const sourceList = newLists.find((l) => l.id.toString() === source.droppableId);
+    const destList = newLists.find((l) => l.id.toString() === destination.droppableId);
     const [movedCard] = sourceList.cards.splice(source.index, 1);
-    movedCard.status = destList.id;
+    movedCard.status = destList.title;
+    movedCard.listId = destList.id;
     destList.cards.splice(destination.index, 0, movedCard);
     setLists(newLists);
     updateTask(movedCard);
@@ -148,18 +153,7 @@ export default function ListBoard({ user }) {
           <option value="DOING">🚧 DOING</option>
           <option value="DONE">✅ DONE</option>
         </select>
-        <button
-          className="add-list-btn"
-          onClick={() => {
-            const newId = `CUSTOM_${Date.now()}`;
-            setLists((prev) => [
-              ...prev,
-              { id: newId, title: "🆕 새 리스트", cards: [] },
-            ]);
-          }}
-        >
-          + 리스트 추가
-        </button>
+        <button className="add-list-btn" onClick={createList}>+ 리스트 추가</button>
       </div>
 
       <DragDropContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
@@ -167,7 +161,7 @@ export default function ListBoard({ user }) {
           {(provided) => (
             <div className="list-row" ref={provided.innerRef} {...provided.droppableProps}>
               {lists.map((list, index) => (
-                <Draggable draggableId={list.id} index={index} key={list.id}>
+                <Draggable draggableId={list.id.toString()} index={index} key={list.id}>
                   {(provided) => (
                     <div
                       ref={provided.innerRef}

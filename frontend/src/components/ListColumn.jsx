@@ -37,14 +37,13 @@ export default function ListColumn({
   );
 
   return (
-    <Droppable droppableId={list.id}>
+    <Droppable droppableId={list.id.toString()}>
       {(provided) => (
         <div
           className="list-column"
           ref={provided.innerRef}
           {...provided.droppableProps}
         >
-          {/* ✅ 제목 입력 */}
           <input
             className="list-title-input"
             value={list.title}
@@ -80,24 +79,15 @@ export default function ListColumn({
                 onChange={(e) => setNewTitle(e.target.value)}
               />
               <div className="btn-row">
-                <button className="add" onClick={handleConfirmAdd}>
-                  추가
-                </button>
-                <button
-                  className="cancel"
-                  onClick={() => {
-                    setIsAdding(false);
-                    setNewTitle("");
-                  }}
-                >
-                  취소
-                </button>
+                <button className="add" onClick={handleConfirmAdd}>추가</button>
+                <button className="cancel" onClick={() => {
+                  setIsAdding(false);
+                  setNewTitle("");
+                }}>취소</button>
               </div>
             </div>
           ) : (
-            <button className="add-card-btn" onClick={() => setIsAdding(true)}>
-              + 카드 추가
-            </button>
+            <button className="add-card-btn" onClick={() => setIsAdding(true)}>+ 카드 추가</button>
           )}
         </div>
       )}
