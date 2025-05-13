@@ -10,6 +10,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "http://localhost:5173") // React 포트 허용
 public class UserController {
 
     @Autowired
@@ -17,11 +18,10 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
-        String email = loginData.get("email");      // ✅ email 사용
+        String email = loginData.get("email");
         String password = loginData.get("password");
 
-        Optional<User> userOpt = userRepository.findByEmail(email); // ✅ 메서드 변경
-
+        Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             if (user.getPassword().equals(password)) {

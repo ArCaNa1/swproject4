@@ -1,4 +1,4 @@
-// ✅ ListBoard.jsx (axios 경로 및 baseURL 정리 포함 전체 수정본)
+// src/pages/ListBoard.jsx
 import React, { useState, useEffect } from "react";
 import ListColumn from "../components/ListColumn";
 import CardModal from "../components/CardModal";
@@ -16,8 +16,13 @@ export default function ListBoard({ user }) {
     const fetchListsAndTasks = async () => {
       try {
         const encodedEmail = encodeURIComponent(user.email);
-        const res = await axios.get(`/api/lists/${encodedEmail}`);
-        setLists(res.data);
+        const res = await axios.get(`/lists/${encodedEmail}`);
+        // ✅ cards 필드가 누락되지 않도록 보정
+        const safeLists = res.data.map((list) => ({
+          ...list,
+          cards: list.cards || [],
+        }));
+        setLists(safeLists);
       } catch (error) {
         console.error("❌ 리스트 및 카드 로딩 실패", error);
       }
@@ -27,10 +32,11 @@ export default function ListBoard({ user }) {
 
   const createTask = async (listId, title) => {
     try {
-      const response = await axios.post("/api/tasks", {
+      const response = await axios.post("/tasks", {
         listId,
         title,
         status: "TODO",
+        email: user.email,
       });
       const newCard = response.data;
       setLists((prev) =>
@@ -45,7 +51,7 @@ export default function ListBoard({ user }) {
 
   const updateTask = async (updatedCard) => {
     try {
-      await axios.put(`/api/tasks/${updatedCard.id}`, updatedCard);
+      await axios.put(`/tasks/${updatedCard.id}`, updatedCard);
       setLists((prev) =>
         prev.map((list) => {
           const updatedCards = list.cards.map((card) =>
@@ -61,7 +67,7 @@ export default function ListBoard({ user }) {
 
   const deleteTask = async (cardId) => {
     try {
-      await axios.delete(`/api/tasks/${cardId}`);
+      await axios.delete(`/tasks/${cardId}`);
       setLists((prev) =>
         prev.map((list) => ({
           ...list,
@@ -75,7 +81,7 @@ export default function ListBoard({ user }) {
 
   const createList = async () => {
     try {
-      const response = await axios.post("/api/lists", {
+      const response = await axios.post("/lists", {
         email: user.email,
         title: "🆕 새 리스트",
       });
@@ -95,9 +101,11 @@ export default function ListBoard({ user }) {
         list.id === listId ? { ...list, title: newTitle } : list
       )
     );
-    axios.put(`/api/lists/${listId}`, { title: newTitle }).catch((err) => {
-      console.error("❌ 리스트 제목 수정 실패", err);
-    });
+    axios
+      .put(`/lists/${listId}`, { title: newTitle })
+      .catch((err) => {
+        console.error("❌ 리스트 제목 수정 실패", err);
+      });
   };
 
   const openModal = (card) => {
@@ -120,11 +128,19 @@ export default function ListBoard({ user }) {
     handleDragEndLocal();
     const { source, destination } = result;
     if (!destination) return;
-    if (source.droppableId === destination.droppableId && source.index === destination.index) return;
+    if (
+      source.droppableId === destination.droppableId &&
+      source.index === destination.index
+    )
+      return;
 
     const newLists = JSON.parse(JSON.stringify(lists));
-    const sourceList = newLists.find((l) => l.id.toString() === source.droppableId);
-    const destList = newLists.find((l) => l.id.toString() === destination.droppableId);
+    const sourceList = newLists.find(
+      (l) => l.id.toString() === source.droppableId
+    );
+    const destList = newLists.find(
+      (l) => l.id.toString() === destination.droppableId
+    );
     const [movedCard] = sourceList.cards.splice(source.index, 1);
     movedCard.status = destList.title;
     movedCard.listId = destList.id;
@@ -153,7 +169,9 @@ export default function ListBoard({ user }) {
           <option value="DOING">🚧 DOING</option>
           <option value="DONE">✅ DONE</option>
         </select>
-        <button className="add-list-btn" onClick={createList}>+ 리스트 추가</button>
+        <button className="add-list-btn" onClick={createList}>
+          + 리스트 추가
+        </button>
       </div>
 
       <DragDropContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>

@@ -7,15 +7,16 @@ import "./App.css";
 function App() {
   const [loggedInUser, setLoggedInUser] = useState(null);
 
-  // 로그인 유지: localStorage에서 이메일 불러오기
   useEffect(() => {
     const email = localStorage.getItem("email");
-    if (email) setLoggedInUser({ email });
+    if (email) {
+      setLoggedInUser({ email });
+    }
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("email");
     localStorage.removeItem("token");
+    localStorage.removeItem("email");
     setLoggedInUser(null);
   };
 
@@ -26,7 +27,7 @@ function App() {
           <header className="app-header">
             <h1 className="logo">📌 MyTaskBoard</h1>
             <div className="user-info">
-              <span className="username">👤 {loggedInUser.email} 님</span>
+              <span className="username">👤 {loggedInUser.email}님</span>
               <button className="logout-btn" onClick={handleLogout}>
                 로그아웃
               </button>

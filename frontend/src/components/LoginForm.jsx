@@ -1,7 +1,5 @@
-// src/components/LoginForm.jsx
 import React, { useState } from "react";
 import axios from "../utils/axiosInstance";
-
 
 export default function LoginForm({ onLogin }) {
   const [email, setEmail] = useState("");
@@ -10,18 +8,16 @@ export default function LoginForm({ onLogin }) {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:8080/api/auth/login", {
+      const res = await axios.post("/auth/login", {
         email,
         password,
       });
       const token = res.data.token;
 
-      // ✅ 로그인 성공 시 토큰과 이메일 저장
       localStorage.setItem("token", token);
       localStorage.setItem("email", email);
 
-      onLogin({ email }); // App에 전달
-
+      onLogin({ email });
     } catch (err) {
       alert("로그인 실패");
       console.error("❌ 로그인 에러:", err);
