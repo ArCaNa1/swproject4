@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import ListColumn from "../components/ListColumn";
 import CardModal from "../components/CardModal";
 import axios from "../utils/axiosInstance";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DragDropContext } from "react-beautiful-dnd";
 
 export default function ListBoard({ user }) {
   const [lists, setLists] = useState([]);
@@ -11,26 +11,21 @@ export default function ListBoard({ user }) {
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [isDragging, setIsDragging] = useState(false);
 
-  // 리스트 + 카드 모두 로딩
   useEffect(() => {
     const fetchListsAndCards = async () => {
       try {
         const encodedEmail = encodeURIComponent(user.email);
         const [listsRes, cardsRes] = await Promise.all([
           axios.get(`/lists/${encodedEmail}`),
-          axios.get(`/cards`)
+          axios.get(`/cards`),
         ]);
 
-        const lists = listsRes.data;
-        const cards = cardsRes.data;
-
-        // 카드들을 listId 기준으로 나눔
         const listMap = {};
-        lists.forEach((list) => {
+        listsRes.data.forEach((list) => {
           listMap[list.id] = { ...list, cards: [] };
         });
 
-        cards.forEach((card) => {
+        cardsRes.data.forEach((card) => {
           if (listMap[card.listId]) {
             listMap[card.listId].cards.push(card);
           }
@@ -140,29 +135,42 @@ export default function ListBoard({ user }) {
   const handleDragStart = () => setIsDragging(true);
   const handleDragEndLocal = () => setTimeout(() => setIsDragging(false), 0);
 
-  const handleDragEnd = (result) => {
+  const handleDragEnd = async (result) => {
     handleDragEndLocal();
     const { source, destination } = result;
     if (!destination) return;
-    if (
-      source.droppableId === destination.droppableId &&
-      source.index === destination.index
-    )
-      return;
 
-    const newLists = JSON.parse(JSON.stringify(lists));
-    const sourceList = newLists.find(
-      (l) => l.id.toString() === source.droppableId
-    );
-    const destList = newLists.find(
-      (l) => l.id.toString() === destination.droppableId
-    );
-    const [movedCard] = sourceList.cards.splice(source.index, 1);
-    movedCard.status = destList.title;
-    movedCard.listId = destList.id;
-    destList.cards.splice(destination.index, 0, movedCard);
-    setLists(newLists);
-    updateTask(movedCard);
+    const sourceList = lists.find((l) => l.id.toString() === source.droppableId);
+    const destList = lists.find((l) => l.id.toString() === destination.droppableId);
+    const movedCard = sourceList.cards[source.index];
+
+    if (!movedCard) return;
+
+    // 리스트 이동
+    const updatedLists = lists.map((list) => {
+      if (list.id === sourceList.id) {
+        const newCards = [...list.cards];
+        newCards.splice(source.index, 1);
+        return { ...list, cards: newCards };
+      } else if (list.id === destList.id) {
+        const newCards = [...list.cards];
+        newCards.splice(destination.index, 0, movedCard);
+        return { ...list, cards: newCards };
+      }
+      return list;
+    });
+
+    setLists(updatedLists);
+
+    try {
+      await axios.put(`/cards/${movedCard.id}`, {
+        ...movedCard,
+        listId: destList.id,
+        status: destList.title,
+      });
+    } catch (error) {
+      console.error("❌ 카드 드래그 저장 실패", error);
+    }
   };
 
   return (
@@ -191,33 +199,19 @@ export default function ListBoard({ user }) {
       </div>
 
       <DragDropContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
-        <Droppable droppableId="board" direction="horizontal" type="COLUMN">
-          {(provided) => (
-            <div className="list-row" ref={provided.innerRef} {...provided.droppableProps}>
-              {lists.map((list, index) => (
-                <Draggable draggableId={list.id.toString()} index={index} key={list.id}>
-                  {(provided) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                    >
-                      <ListColumn
-                        list={list}
-                        onAddCard={handleAddCard}
-                        onCardClick={openModal}
-                        onChangeListTitle={handleChangeListTitle}
-                        searchKeyword={searchKeyword}
-                        statusFilter={statusFilter}
-                      />
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
+        <div className="list-row">
+          {lists.map((list) => (
+            <ListColumn
+              key={list.id}
+              list={list}
+              onAddCard={handleAddCard}
+              onCardClick={openModal}
+              onChangeListTitle={handleChangeListTitle}
+              searchKeyword={searchKeyword}
+              statusFilter={statusFilter}
+            />
+          ))}
+        </div>
       </DragDropContext>
 
       {selectedCard && (

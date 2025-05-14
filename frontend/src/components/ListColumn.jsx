@@ -53,14 +53,14 @@ export default function ListColumn({
 
           <div className="card-stack">
             {filteredCards.map((card, index) => (
-              <Draggable key={card.id} draggableId={card.id} index={index}>
+              <Draggable key={card.id} draggableId={card.id.toString()} index={index}>
                 {(provided) => (
                   <div
+                    className="card"
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
                     onClick={() => onCardClick(card)}
-                    className="card"
                   >
                     <TaskCard card={card} />
                   </div>
@@ -79,15 +79,24 @@ export default function ListColumn({
                 onChange={(e) => setNewTitle(e.target.value)}
               />
               <div className="btn-row">
-                <button className="add" onClick={handleConfirmAdd}>추가</button>
-                <button className="cancel" onClick={() => {
-                  setIsAdding(false);
-                  setNewTitle("");
-                }}>취소</button>
+                <button className="add" onClick={handleConfirmAdd}>
+                  추가
+                </button>
+                <button
+                  className="cancel"
+                  onClick={() => {
+                    setIsAdding(false);
+                    setNewTitle("");
+                  }}
+                >
+                  취소
+                </button>
               </div>
             </div>
           ) : (
-            <button className="add-card-btn" onClick={() => setIsAdding(true)}>+ 카드 추가</button>
+            <button className="add-card-btn" onClick={() => setIsAdding(true)}>
+              + 카드 추가
+            </button>
           )}
         </div>
       )}
