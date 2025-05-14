@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import axios from "../utils/axiosInstance";
 import "./CardModal.css";
 
-export default function CardModal({ card, onClose, onSave, onDelete }) {
+export default function CardModal({ card, onClose, onDelete }) {
   const [title, setTitle] = useState(card.title);
   const [dueDate, setDueDate] = useState(card.dueDate || "");
   const [description, setDescription] = useState(card.description || "");
   const [status, setStatus] = useState(card.status || "TODO");
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const updatedCard = {
       ...card,
       title,
@@ -16,13 +16,26 @@ export default function CardModal({ card, onClose, onSave, onDelete }) {
       description,
       status,
     };
-    onSave?.(updatedCard);
-    onClose();
+
+    if (!card.id) {
+      alert("수정할 카드 ID가 유효하지 않습니다.");
+      console.error("card.id is missing:", card);
+      return;
+    }
+
+    try {
+      await axios.put(`/cards/${card.id}`, updatedCard); // ✅ cards로 수정됨
+      alert("카드가 성공적으로 수정되었습니다.");
+      onClose();
+    } catch (error) {
+      console.error("카드 수정 실패:", error);
+      alert("카드 수정 중 오류가 발생했습니다.");
+    }
   };
 
   const handleDelete = () => {
     if (window.confirm("정말 삭제하시겠습니까?")) {
-      onDelete?.(card.id);
+      onDelete?.(card.id); // 삭제 요청은 부모 컴포넌트에서 실행
       onClose();
     }
   };
@@ -82,13 +95,22 @@ export default function CardModal({ card, onClose, onSave, onDelete }) {
         </label>
 
         <div className="modal-actions mt-4">
-          <button onClick={handleSave} className="bg-indigo-600 text-white px-4 py-2 rounded">
+          <button
+            onClick={handleSave}
+            className="bg-indigo-600 text-white px-4 py-2 rounded"
+          >
             저장
           </button>
-          <button onClick={handleDelete} className="ml-2 bg-red-500 text-white px-4 py-2 rounded">
+          <button
+            onClick={handleDelete}
+            className="ml-2 bg-red-500 text-white px-4 py-2 rounded"
+          >
             삭제
           </button>
-          <button onClick={onClose} className="ml-2 bg-gray-300 px-4 py-2 rounded">
+          <button
+            onClick={onClose}
+            className="ml-2 bg-gray-300 px-4 py-2 rounded"
+          >
             닫기
           </button>
         </div>

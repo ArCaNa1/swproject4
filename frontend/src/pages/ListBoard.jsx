@@ -1,4 +1,3 @@
-// src/pages/ListBoard.jsx
 import React, { useState, useEffect } from "react";
 import ListColumn from "../components/ListColumn";
 import CardModal from "../components/CardModal";
@@ -12,27 +11,43 @@ export default function ListBoard({ user }) {
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [isDragging, setIsDragging] = useState(false);
 
+  // 리스트 + 카드 모두 로딩
   useEffect(() => {
-    const fetchListsAndTasks = async () => {
+    const fetchListsAndCards = async () => {
       try {
         const encodedEmail = encodeURIComponent(user.email);
-        const res = await axios.get(`/lists/${encodedEmail}`);
-        // ✅ cards 필드가 누락되지 않도록 보정
-        const safeLists = res.data.map((list) => ({
-          ...list,
-          cards: list.cards || [],
-        }));
-        setLists(safeLists);
+        const [listsRes, cardsRes] = await Promise.all([
+          axios.get(`/lists/${encodedEmail}`),
+          axios.get(`/cards`)
+        ]);
+
+        const lists = listsRes.data;
+        const cards = cardsRes.data;
+
+        // 카드들을 listId 기준으로 나눔
+        const listMap = {};
+        lists.forEach((list) => {
+          listMap[list.id] = { ...list, cards: [] };
+        });
+
+        cards.forEach((card) => {
+          if (listMap[card.listId]) {
+            listMap[card.listId].cards.push(card);
+          }
+        });
+
+        setLists(Object.values(listMap));
       } catch (error) {
-        console.error("❌ 리스트 및 카드 로딩 실패", error);
+        console.error("❌ 리스트/카드 로딩 실패", error);
       }
     };
-    if (user?.email) fetchListsAndTasks();
+
+    if (user?.email) fetchListsAndCards();
   }, [user]);
 
   const createTask = async (listId, title) => {
     try {
-      const response = await axios.post("/tasks", {
+      const response = await axios.post("/cards", {
         listId,
         title,
         status: "TODO",
@@ -51,11 +66,12 @@ export default function ListBoard({ user }) {
 
   const updateTask = async (updatedCard) => {
     try {
-      await axios.put(`/tasks/${updatedCard.id}`, updatedCard);
+      const response = await axios.put(`/cards/${updatedCard.id}`, updatedCard);
+      const savedCard = response.data;
       setLists((prev) =>
         prev.map((list) => {
           const updatedCards = list.cards.map((card) =>
-            card.id === updatedCard.id ? updatedCard : card
+            card.id === savedCard.id ? savedCard : card
           );
           return { ...list, cards: updatedCards };
         })
@@ -67,7 +83,7 @@ export default function ListBoard({ user }) {
 
   const deleteTask = async (cardId) => {
     try {
-      await axios.delete(`/tasks/${cardId}`);
+      await axios.delete(`/cards/${cardId}`);
       setLists((prev) =>
         prev.map((list) => ({
           ...list,
