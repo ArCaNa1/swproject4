@@ -18,6 +18,9 @@ public class Card {
     private String status;
     private Long listId;
 
+    @Column(name = "position")
+    private Integer position;
+
     public Card() {}
 
     public Long getId() { return id; }
@@ -37,4 +40,8 @@ public class Card {
 
     public Long getListId() { return listId; }
     public void setListId(Long listId) { this.listId = listId; }
+
+    public Integer getPosition() { return position; }
+    public void setPosition(Integer position) { this.position = position; }
+
 }

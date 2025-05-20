@@ -40,6 +40,8 @@ public class CardController {
         card.setDescription(cardDetails.getDescription());
         card.setDueDate(cardDetails.getDueDate());
         card.setStatus(cardDetails.getStatus());
+        card.setListId(cardDetails.getListId());
+        card.setPosition(cardDetails.getPosition());
         return cardRepository.save(card);
     }
 

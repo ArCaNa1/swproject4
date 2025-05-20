@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "../utils/axiosInstance";
 import "./CardModal.css";
 
-export default function CardModal({ card, onClose, onDelete }) {
+export default function CardModal({ card, onClose, onDelete,onSave  }) {
   const [title, setTitle] = useState(card.title);
   const [dueDate, setDueDate] = useState(card.dueDate || "");
   const [description, setDescription] = useState(card.description || "");
@@ -26,6 +26,7 @@ export default function CardModal({ card, onClose, onDelete }) {
     try {
       await axios.put(`/cards/${card.id}`, updatedCard); // ✅ cards로 수정됨
       alert("카드가 성공적으로 수정되었습니다.");
+      onSave(updatedCard); 
       onClose();
     } catch (error) {
       console.error("카드 수정 실패:", error);
