@@ -267,6 +267,7 @@ export default function ListBoard({ user }) {
       {selectedCard && (
         <CardModal
           card={selectedCard}
+          user={user}
           onClose={closeModal}
           onSave={handleSaveCard}
           onDelete={handleDeleteCard}

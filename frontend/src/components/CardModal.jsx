@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "../utils/axiosInstance";
 import "./CardModal.css";
 
-export default function CardModal({ card, onClose, onDelete,onSave  }) {
+export default function CardModal({ card,user, onClose, onDelete,onSave  }) {
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState("");
   const [title, setTitle] = useState(card.title);
   const [dueDate, setDueDate] = useState(card.dueDate || "");
   const [description, setDescription] = useState(card.description || "");
@@ -33,6 +35,31 @@ export default function CardModal({ card, onClose, onDelete,onSave  }) {
       alert("카드 수정 중 오류가 발생했습니다.");
     }
   };
+
+  useEffect(() => {
+    axios
+      .get(`/cards/${card.id}/comments`)
+      .then((res) => setComments(res.data))
+      .catch((err) => console.error("댓글 불러오기 실패", err));
+  }, [card]);
+
+  const handleAddComment = async () => {
+  if (!newComment.trim()) return;
+
+  try {
+    const res = await axios.post(`/cards/${card.id}/comments`, {
+      userEmail: user.email,
+      content: newComment,
+    });
+
+    setComments((prev) => [...prev, res.data]);
+    setNewComment("");
+  } catch (err) {
+    console.error("댓글 추가 실패", err);
+  }
+};
+
+
 
   const handleDelete = () => {
     if (window.confirm("정말 삭제하시겠습니까?")) {
@@ -94,6 +121,35 @@ export default function CardModal({ card, onClose, onDelete,onSave  }) {
             <option value="CANCELLED">❌ CANCELLED</option>
           </select>
         </label>
+
+        <div className="modal-section">
+        <h3>💬 댓글</h3>
+
+        <ul className="comment-list">
+          {comments.map((c) => (
+            <li key={c.id}>
+              <strong>{c.userEmail}</strong>: {c.content}
+              <br />
+              <small>{new Date(c.createdAt).toLocaleString()}</small>
+            </li>
+          ))}
+        </ul>
+
+        <textarea
+          className="w-full border mt-2 p-2 rounded"
+          rows={3}
+          placeholder="댓글을 입력하세요..."
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+        />
+        <button
+          className="mt-2 bg-blue-500 text-white px-3 py-1 rounded"
+          onClick={handleAddComment}
+        >
+          댓글 작성
+        </button>
+      </div>
+
 
         <div className="modal-actions mt-4">
           <button
