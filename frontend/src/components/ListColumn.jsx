@@ -37,21 +37,21 @@ export default function ListColumn({
   );
 
   return (
-    <Droppable droppableId={list.id.toString()}>
-      {(provided) => (
-        <div
-          className="list-column"
-          ref={provided.innerRef}
-          {...provided.droppableProps}
-        >
-          <input
-            className="list-title-input"
-            value={list.title}
-            onChange={(e) => onChangeListTitle(list.id, e.target.value)}
-            placeholder="리스트 제목 입력"
-          />
+    <div className="list-column">
+      <input
+        className="list-title-input"
+        value={list.title}
+        onChange={(e) => onChangeListTitle(list.id, e.target.value)}
+        placeholder="리스트 제목 입력"
+      />
 
-          <div className="card-stack">
+      <Droppable droppableId={list.id.toString()}>
+        {(provided) => (
+          <div
+            className="card-stack"
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+          >
             {filteredCards.map((card, index) => (
               <Draggable key={card.id} draggableId={card.id.toString()} index={index}>
                 {(provided) => (
@@ -69,37 +69,37 @@ export default function ListColumn({
             ))}
             {provided.placeholder}
           </div>
+        )}
+      </Droppable>
 
-          {isAdding ? (
-            <div className="add-card-form">
-              <input
-                type="text"
-                placeholder="카드 제목 입력"
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-              />
-              <div className="btn-row">
-                <button className="add" onClick={handleConfirmAdd}>
-                  추가
-                </button>
-                <button
-                  className="cancel"
-                  onClick={() => {
-                    setIsAdding(false);
-                    setNewTitle("");
-                  }}
-                >
-                  취소
-                </button>
-              </div>
-            </div>
-          ) : (
-            <button className="add-card-btn" onClick={() => setIsAdding(true)}>
-              + 카드 추가
+      {isAdding ? (
+        <div className="add-card-form">
+          <input
+            type="text"
+            placeholder="카드 제목 입력"
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+          />
+          <div className="btn-row">
+            <button className="add" onClick={handleConfirmAdd}>
+              추가
             </button>
-          )}
+            <button
+              className="cancel"
+              onClick={() => {
+                setIsAdding(false);
+                setNewTitle("");
+              }}
+            >
+              취소
+            </button>
+          </div>
         </div>
+      ) : (
+        <button className="add-card-btn" onClick={() => setIsAdding(true)}>
+          + 카드 추가
+        </button>
       )}
-    </Droppable>
+    </div>
   );
 }
