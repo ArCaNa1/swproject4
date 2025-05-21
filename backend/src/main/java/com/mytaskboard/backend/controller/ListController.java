@@ -5,6 +5,7 @@ import com.mytaskboard.backend.repository.ListRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
@@ -39,10 +40,14 @@ public class ListController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // 리스트 삭제 (선택사항)
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteList(@PathVariable int id) {
-        listRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deleteList(@PathVariable Integer id) {
+        try {
+            listRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("삭제 실패");
+        }
     }
+
 }

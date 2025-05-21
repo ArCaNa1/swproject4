@@ -71,6 +71,7 @@ export default function CardModal({ card,user, onClose, onDelete,onSave  }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+         <div className="modal-scrollable">
         <h2 className="modal-title">
           📝 카드: <span>{card.title}</span>
         </h2>
@@ -150,7 +151,7 @@ export default function CardModal({ card,user, onClose, onDelete,onSave  }) {
         </button>
       </div>
 
-
+    </div>
         <div className="modal-actions mt-4">
           <button
             onClick={handleSave}

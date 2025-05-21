@@ -115,6 +115,7 @@ export default function ListBoard({ user }) {
     }
   };
 
+
   const createList = async () => {
     try {
       const response = await axios.post("/lists", {
@@ -126,6 +127,18 @@ export default function ListBoard({ user }) {
       console.error("❌ 리스트 생성 실패", error);
     }
   };
+
+  const handleDeleteList = async (listId) => {
+    if (!window.confirm("정말 이 리스트를 삭제하시겠습니까? 삭제 시 카드도 모두 삭제됩니다.")) return;
+
+    try {
+      await axios.delete(`/lists/${listId}`);
+      setLists((prev) => prev.filter((list) => list.id !== listId));
+    } catch (error) {
+      console.error("❌ 리스트 삭제 실패", error);
+    }
+  };
+
 
   const handleAddCard = (listId, card) => {
     if (card?.title) createTask(listId, card.title);
@@ -259,6 +272,7 @@ export default function ListBoard({ user }) {
               onChangeListTitle={handleChangeListTitle}
               searchKeyword={searchKeyword}
               statusFilter={statusFilter}
+              onDeleteList={handleDeleteList}
             />
           ))}
         </div>

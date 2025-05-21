@@ -9,6 +9,7 @@ export default function ListColumn({
   searchKeyword,
   statusFilter,
   onChangeListTitle,
+  onDeleteList
 }) {
   const [isAdding, setIsAdding] = useState(false);
   const [newTitle, setNewTitle] = useState("");
@@ -44,6 +45,13 @@ export default function ListColumn({
         onChange={(e) => onChangeListTitle(list.id, e.target.value)}
         placeholder="리스트 제목 입력"
       />
+      <button
+        className="delete-list-btn"
+        onClick={() => onDeleteList(list.id)}
+        title="리스트 삭제"
+      >
+        ❌
+      </button>
 
       <Droppable droppableId={list.id.toString()}>
         {(provided) => (
