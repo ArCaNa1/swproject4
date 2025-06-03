@@ -17,16 +17,29 @@ public class ListController {
     @Autowired
     private ListRepository listRepository;
 
-    // 리스트 전체 조회 (사용자 이메일 기준)
+    // 특정 사용자 이메일 기준 전체 리스트 조회
     @GetMapping("/{email}")
     public ResponseEntity<List<ListEntity>> getUserLists(@PathVariable String email) {
-        return ResponseEntity.ok(listRepository.findByEmail(email));
+        List<ListEntity> lists = listRepository.findByEmail(email);
+        return ResponseEntity.ok(lists);
+    }
+
+    // 팀 ID 기준 전체 리스트 조회
+    @GetMapping("/team/{teamId}")
+    public ResponseEntity<List<ListEntity>> getListsByTeam(@PathVariable Long teamId) {
+        List<ListEntity> lists = listRepository.findByTeamId(teamId);
+        return ResponseEntity.ok(lists);
     }
 
     // 리스트 생성
     @PostMapping
     public ResponseEntity<ListEntity> createList(@RequestBody ListEntity list) {
-        return ResponseEntity.ok(listRepository.save(list));
+        try {
+            ListEntity saved = listRepository.save(list);
+            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     // 리스트 제목 수정
@@ -40,6 +53,7 @@ public class ListController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // 리스트 삭제
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteList(@PathVariable Integer id) {
         try {
@@ -49,5 +63,4 @@ public class ListController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("삭제 실패");
         }
     }
-
 }

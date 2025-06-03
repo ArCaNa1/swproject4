@@ -10,12 +10,14 @@ public class ListEntity {
     private int id;
 
     @Column(nullable = false)
-    private String email; // 사용자 식별자
+    private String email;
 
     @Column(nullable = false)
     private String title;
 
-    // Getter & Setter
+    @Column(nullable = false)
+    private Long teamId;
+
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -24,4 +26,7 @@ public class ListEntity {
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
+
+    public Long getTeamId() { return teamId; }
+    public void setTeamId(Long teamId) { this.teamId = teamId; }
 }
