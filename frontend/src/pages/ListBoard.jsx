@@ -47,24 +47,34 @@ export default function ListBoard({ user }) {
   }, [user, teamId]);
 
   const createTask = async (listId, title) => {
-    try {
-      const response = await axios.post("/cards", {
+  try {
+    const response = await axios.post(
+      "/cards",
+      {
         listId,
         title,
         status: "TODO",
-        email: user.email,
         teamId,
-      });
-      const newCard = response.data;
-      setLists((prev) =>
-        prev.map((list) =>
-          list.id === listId ? { ...list, cards: [...list.cards, newCard] } : list
-        )
-      );
-    } catch (error) {
-      console.error("❌ 카드 생성 실패", error);
-    }
-  };
+        createdByEmail: user.email,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    const newCard = response.data;
+    setLists((prev) =>
+      prev.map((list) =>
+        list.id === listId ? { ...list, cards: [...list.cards, newCard] } : list
+      )
+    );
+  } catch (error) {
+    console.error("❌ 카드 생성 실패", error);
+  }
+};
+
 
   const updateTask = async (updatedCard) => {
     try {

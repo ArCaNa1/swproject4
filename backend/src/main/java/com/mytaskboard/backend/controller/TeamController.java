@@ -67,15 +67,15 @@ public class TeamController {
     @ResponseBody
     public ResponseEntity<List<User>> getTeamMembers(@PathVariable Long teamId) {
         List<TeamMember> members = teamMemberRepository.findByTeamId(teamId);
-        
-        List<Integer> userIds = members.stream()
-                .map(member -> member.getUserId().intValue())
-                .toList();
+
+        List<Long> userIds = members.stream()
+                                    .map(TeamMember::getUserId)
+                                    .toList();
 
         List<User> users = userRepository.findAllById(userIds);
+
         return ResponseEntity.ok(users);
     }
-
 
     @PostMapping("/{teamId}/accept")
     @ResponseBody

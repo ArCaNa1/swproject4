@@ -21,6 +21,31 @@ public class Card {
     @Column(name = "position")
     private Integer position;
 
+    @Column(name = "created_by", nullable = false)
+    private Long createdBy;
+
+    @Transient
+    private String email;
+
+    @Column(name = "team_id", nullable = false)
+    private Long teamId;
+
+    public Long getTeamId() {
+        return teamId;
+    }
+
+    public void setTeamId(Long teamId) {
+        this.teamId = teamId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public Card() {}
 
     public Long getId() { return id; }
@@ -43,5 +68,13 @@ public class Card {
 
     public Integer getPosition() { return position; }
     public void setPosition(Integer position) { this.position = position; }
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
+    }
 
 }

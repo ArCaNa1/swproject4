@@ -1,7 +1,11 @@
 package com.mytaskboard.backend.controller;
 
 import com.mytaskboard.backend.entity.Comment;
+import com.mytaskboard.backend.entity.User;
 import com.mytaskboard.backend.repository.CommentRepository;
+import com.mytaskboard.backend.repository.UserRepository;
+import com.mytaskboard.backend.dto.CommentRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,17 +19,26 @@ public class CommentController {
     @Autowired
     private CommentRepository commentRepository;
 
-    // 댓글 목록 조회
+    @Autowired
+    private UserRepository userRepository;
+
     @GetMapping
     public List<Comment> getComments(@PathVariable Long cardId) {
         return commentRepository.findByCardIdOrderByCreatedAtAsc(cardId);
     }
 
-    // 댓글 추가
     @PostMapping
-    public Comment addComment(@PathVariable Long cardId, @RequestBody Comment comment) {
+    public Comment addComment(@PathVariable Long cardId, @RequestBody CommentRequest request) {
+        User user = userRepository.findByEmail(request.userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Comment comment = new Comment();
         comment.setCardId(cardId);
+        comment.setUserId(user.getId());
+        comment.setUserEmail(user.getEmail());
+        comment.setContent(request.content);
         comment.setCreatedAt(LocalDateTime.now());
+
         return commentRepository.save(comment);
     }
 }
