@@ -57,6 +57,7 @@ function App() {
                 <Route path="/invites" element={<InviteInboxPage />} />
                 {/* 로그인 후 기본 경로를 대시보드로 리디렉션 */}
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/invitations" element={<InviteInboxPage />} />
               </>
             )}
           </Routes>

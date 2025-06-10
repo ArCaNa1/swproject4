@@ -16,4 +16,5 @@ public interface TeamInviteRepository extends JpaRepository<TeamInvite, Long> {
 
     List<TeamInvite> findByEmailAndStatus(String email, String status);
 
+    List<TeamInvite> findByEmail(String email);
 }
